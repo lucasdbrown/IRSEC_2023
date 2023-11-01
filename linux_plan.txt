@@ -1,0 +1,53 @@
+First 5 minutes
+-Making password for all users on system
+getent passwd
+all the users available on your system or “users locally created on your server”
+sudo passwd
+it will prompt 
+sudo adduser
+adds user
+sudo adduser test
+sudo adduser test2
+who -a
+shows who is logged in
+su test
+switched into test
+ps -ef |  grep root
+ps -ef: see what processes are running
+| = pipe
+searches for user named root (root is red team)
+ps -ef |  grep ssh
+searches for red teamer using ssh
+sudo kill -9 (pid)
+it will destroy connection
+pid is the long number next to the user name
+sudo usermod -L test2
+blocks people from sshing into account
+ps -aux | grep root
+list all the processes on the system
+systemctl status sshd
+systemctl enable sshd
+systemctl start sshd
+crontab -l
+check services files
+nestat
+shows running connections
+look for backdoors
+nestat -o
+displays timers
+you can do ip tables for a homemade firewall for linux
+use wireshark and tcp dump
+tcpdump
+display TCP/IP and other packets being transmitted or received over a network
+tcpdump | grep 10.
+tcpdump -ni ens3 host (ip address)
+whatever it is listening on (ens3 in this)
+use a sus ip address
+then kill connection with  the previous command
+use find command
+
+Found these myself:
+nuclei
+vulnerability scanner
+angry ip scanner
+ip/port scanner
