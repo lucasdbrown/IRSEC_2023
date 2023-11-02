@@ -1,0 +1,74 @@
+## Suspicious activity
+auditctl -w /usr/bin/wget -p x -k susp_activity
+auditctl -w /usr/bin/curl -p x -k susp_activity
+auditctl -w /usr/bin/base64 -p x -k susp_activity
+auditctl -w /bin/nc -p x -k susp_activity
+auditctl -w /bin/netcat -p x -k susp_activity
+auditctl -w /usr/bin/ncat -p x -k susp_activity
+auditctl -w /usr/bin/ssh -p x -k susp_activity
+auditctl -w /usr/bin/socat -p x -k susp_activity
+auditctl -w /usr/bin/wireshark -p x -k susp_activity
+auditctl -w /usr/bin/rawshark -p x -k susp_activity
+auditctl -w /usr/bin/rdesktop -p x -k sbin_susp
+
+## Sbin suspicious activity
+auditctl -w /sbin/iptables -p x -k sbin_susp 
+auditctl -w /sbin/ifconfig -p x -k sbin_susp
+auditctl -w /usr/sbin/tcpdump -p x -k sbin_susp
+auditctl -w /usr/sbin/traceroute -p x -k sbin_susp
+
+## Injection 
+### These rules watch for code injection by the ptrace facility.
+### This could indicate someone trying to do something bad or just debugging
+auditctl -a always,exit -F arch=b32 -S ptrace -k tracing
+auditctl -a always,exit -F arch=b64 -S ptrace -k tracing
+auditctl -a always,exit -F arch=b32 -S ptrace -F a0=0x4 -k code_injection
+auditctl -a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k code_injection
+auditctl -a always,exit -F arch=b32 -S ptrace -F a0=0x5 -k data_injection
+auditctl -a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k data_injection
+auditctl -a always,exit -F arch=b32 -S ptrace -F a0=0x6 -k register_injection
+auditctl -a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k register_injection
+
+## File Access
+### Unauthorized Access (unsuccessful)
+auditctl -a always,exit -F arch=b32 -S creat -S open -S openat -S open_by_handle_at -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k file_access
+auditctl -a always,exit -F arch=b32 -S creat -S open -S openat -S open_by_handle_at -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k file_access
+auditctl -a always,exit -F arch=b64 -S creat -S open -S openat -S open_by_handle_at -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k file_access
+auditctl -a always,exit -F arch=b64 -S creat -S open -S openat -S open_by_handle_at -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k file_access
+
+### Docker
+auditctl -i
+auditctl -w /etc/default/docker -k docker
+auditctl -w /etc/docker -k docker
+auditctl -w /etc/sysconfig/docker -k docker
+auditctl -w /etc/sysconfig/docker-network -k docker
+auditctl -w /etc/sysconfig/docker-registry -k docker
+auditctl -w /etc/sysconfig/docker-storage -k docker
+auditctl -w /etc/systemd/system/docker-registry.service -k docker
+auditctl -w /etc/systemd/system/docker.service -k docker
+auditctl -w /lib/systemd/system/docker-registry.service -k docker
+auditctl -w /lib/systemd/system/docker.service -k docker
+auditctl -w /lib/systemd/system/docker.socket -k docker
+auditctl -w /usr/bin/docker-containerd-ctr -k docker
+auditctl -w /usr/bin/docker-containerd -k docker
+auditctl -w /usr/bin/docker-containerd-shim -k docker
+auditctl -w /usr/bin/docker -k docker
+auditctl -w /usr/bin/docker-runc -k docker
+auditctl -w /usr/lib/systemd/system/docker-registry.service -k docker
+auditctl -w /usr/lib/systemd/system/docker.service -k docker
+auditctl -w /var/lib/docker -k docker
+auditctl -w /var/run/docker.sock -k docker
+
+## Audit the audit logs
+### Successful and unsuccessful attempts to read information from the audit records
+auditctl -w /var/log/audit/ -k auditlog
+
+## Auditd configuration
+### Modifications to audit configuration that occur while the audit collection functions are operating
+auditctl -w /etc/audit/ -p wa -k auditconfig
+auditctl -w /etc/libaudit.conf -p wa -k auditconfig
+auditctl -w /etc/audisp/ -p wa -k audispconfig
+
+## Monitor for use of audit management tools
+auditctl -w /sbin/auditctl -p x -k audittools
+auditctl -w /sbin/auditd -p x -k audittools
